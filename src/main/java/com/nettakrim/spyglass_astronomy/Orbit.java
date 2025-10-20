@@ -1,9 +1,8 @@
 package com.nettakrim.spyglass_astronomy;
 
+import net.minecraft.util.Mth;
 import org.joml.Vector3f;
 
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
 
 public class Orbit {
     public final float period;
@@ -43,9 +42,9 @@ public class Orbit {
         if (t < 0) t++;
         if (updateLastPos) this.lastLocalTime = t;
         float f = getLocalAngleAtLocalTime(t);
-        float cosAngle = MathHelper.cos(f);
+        float cosAngle = Mth.cos(f);
         float scale = distance/(1+eccentricity*cosAngle);
-        return new Vector3f(cosAngle * scale, MathHelper.sin(f) * scale, 0);
+        return new Vector3f(cosAngle * scale, Mth.sin(f) * scale, 0);
     }
 
     public Vector3f getRotatedPositionAtGlobalTime(Long day, float dayFraction, boolean updateLastPos) {
@@ -55,9 +54,9 @@ public class Orbit {
     }
 
     public void rotateLocalPosition(Vector3f vector) {
-        vector.rotate(RotationAxis.POSITIVE_X.rotationDegrees(inclination));
-        vector.rotate(RotationAxis.POSITIVE_Y.rotationDegrees(ascension));
-        vector.rotate(RotationAxis.POSITIVE_Z.rotationDegrees(rotation));
+        vector.rotateX((float) Math.toRadians(inclination));
+        vector.rotateY((float) Math.toRadians(ascension));
+        vector.rotateZ((float) Math.toRadians(rotation));
     }
 
     public Vector3f getLastRotatedPosition() {

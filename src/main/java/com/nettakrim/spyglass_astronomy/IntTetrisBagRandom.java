@@ -1,8 +1,8 @@
 package com.nettakrim.spyglass_astronomy;
 
 import java.util.ArrayList;
+import java.util.Random;
 
-import net.minecraft.util.math.random.Random;
 
 public class IntTetrisBagRandom {
     public ArrayList<Integer> list;
@@ -23,8 +23,8 @@ public class IntTetrisBagRandom {
     }
 
     public int get() {
-        if (list.size() == 0) reset();
-        int pos = random.nextBetween(0, list.size()-1);
+        if (list.isEmpty()) reset();
+        int pos = random.nextInt(list.size());
         return list.remove(pos);
     }
 }

@@ -6,22 +6,16 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 
-import com.nettakrim.spyglass_astronomy.mixin.BiomeAccessAccessor;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.storage.LevelResource;
 
-import com.nettakrim.spyglass_astronomy.mixin.ClientWorldAccessor;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ServerInfo;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.WorldSavePath;
 
 public class SpaceDataManager {
     public static final int SAVE_FORMAT = 1;
@@ -40,9 +34,8 @@ public class SpaceDataManager {
 
     private int changesMade;
 
-    public SpaceDataManager(ClientWorld world) {
-        //https://github.com/Johni0702/bobby/blob/d2024a2d63c63d0bccf2eafcab17dd7bf9d26710/src/main/java/de/johni0702/minecraft/bobby/FakeChunkManager.java#L86
-        long seedHash = ((BiomeAccessAccessor) world.getBiomeAccess()).getSeed();
+    public SpaceDataManager(ClientLevel world) {
+        long seedHash = Objects.requireNonNull(world.getServer()).getWorldData().worldGenOptions().seed();
         boolean useDefault = true;
         Optional<Path> localPath = getLocalStorage();
         this.isWorldFolder = localPath.isPresent();
@@ -63,23 +56,20 @@ public class SpaceDataManager {
         }
     }
 
-    static public Path getGlobalStorage(ClientWorld world){
-        return SpyglassAstronomyClient.client.runDirectory.toPath()
-            .resolve(".spyglass_astronomy")
-            .resolve(getCurrentWorldOrServerName(world).replaceAll("[\\\\/:*?\"<>|]", "_"))
-            ;
+    static public Path getGlobalStorage(ClientLevel world) {
+        return Minecraft.getInstance().gameDirectory.toPath()
+                .resolve(".spyglass_astronomy")
+                .resolve(getCurrentWorldOrServerName(world).replaceAll("[\\\\/:*?\"<>|]", "_"));
     }
 
-    static public Optional<Path> getLocalStorage(){
-        IntegratedServer localServer = MinecraftClient.getInstance().getServer();
-        if (localServer == null)
+    static public Optional<Path> getLocalStorage() {
+        MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
+        if (server == null) {
             return Optional.empty();
-
-        return Optional.of(
-            localServer.getSavePath(WorldSavePath.ROOT)
+        }
+        return Optional.of(server.getWorldPath(LevelResource.ROOT)
                 .resolve("data")
-                .resolve("spyglass_astronomy")
-        );
+                .resolve("spyglass_astronomy"));
     }
 
     public void tryMigrateOldData() {
@@ -288,34 +278,28 @@ public class SpaceDataManager {
         this.yearLength = yearLength;
     }
 
-    private static String getCurrentWorldOrServerName(ClientWorld world) {
-        // https://github.com/Johni0702/bobby/blob/master/src/main/java/de/johni0702/minecraft/bobby/FakeChunkManager.java#L357
-        IntegratedServer integratedServer = SpyglassAstronomyClient.client.getServer();
-        if (integratedServer != null) {
-            return integratedServer.getSaveProperties().getLevelName();
+
+    private static String getCurrentWorldOrServerName(ClientLevel world) {
+        // Forge 获取世界/服务器名称的方式
+        MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
+        if (server != null) {
+            return server.getWorldData().getLevelName();
         }
 
-        try {
-            // Needs to be before the ServerInfo because that one will contain a random IP if connected to realms
-            if (SpyglassAstronomyClient.client.isConnectedToRealms()) {
-                return "realms";
-            }
-        } catch (Exception ignored) {
-            //for some reason this seems to cause crashes
+        if (Minecraft.getInstance().isConnectedToRealms()) {
+            return "realms";
         }
 
         if (world != null) {
-            ClientPlayNetworkHandler clientPlayNetworkHandler = ((ClientWorldAccessor)world).getNetworkHandler();
-            if (clientPlayNetworkHandler != null) {
-                ServerInfo serverInfo = clientPlayNetworkHandler.getServerInfo();
-                if (serverInfo != null) {
-                    return serverInfo.address.replace(':', '_');
-                }
+            ServerData serverInfo = Minecraft.getInstance().getCurrentServer();
+            if (serverInfo != null) {
+                return serverInfo.ip.replace(':', '_');
             }
         }
 
         return "unknown";
     }
+
 
     public void loadStarDatas() {
         if (starDatas == null) return;

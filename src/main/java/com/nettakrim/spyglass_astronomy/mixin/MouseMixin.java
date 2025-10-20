@@ -1,13 +1,13 @@
 package com.nettakrim.spyglass_astronomy.mixin;
-
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.nettakrim.spyglass_astronomy.SpyglassAstronomyClient;
 
-import net.minecraft.client.Mouse;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.math.MathHelper;
-
+import net.minecraft.client.MouseHandler;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,47 +15,49 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(Mouse.class)
+@Mixin(MouseHandler.class)
 public class MouseMixin {
     @Unique
     private double sensitivityScale;
 
-    @Inject(at = @At("TAIL"), method = "updateMouse")
+    @Inject(at = @At("TAIL"), method = "turnPlayer")
     public void updateMouse(CallbackInfo ci) {
         if (SpyglassAstronomyClient.isDrawingConstellation) {
             SpyglassAstronomyClient.updateDrawingConstellation();
         }
     }
     @WrapWithCondition(
-            method = "onMouseScroll",
+            method = "onScroll",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/player/PlayerInventory;scrollInHotbar(D)V"
+                    target = "Lnet/minecraft/world/entity/player/Inventory;swapPaint(D)V"
             )
     )
-    private boolean onMouseScroll(PlayerInventory inventory, double scroll){
-        ClientPlayerEntity player = SpyglassAstronomyClient.client.player;
-        if(player != null && player.isUsingSpyglass()){
-            SpyglassAstronomyClient.zoom = MathHelper.clamp(SpyglassAstronomyClient.zoom - (float)scroll, -10, 10);
+    private boolean onMouseScroll(Inventory inventory, double scroll){
+        LocalPlayer player = SpyglassAstronomyClient.client.player;
+        if (player == null) return true;
+        boolean spyGlassing = player.isUsingItem() && player.getUseItem().is(Items.SPYGLASS);
+        if(spyGlassing){
+            SpyglassAstronomyClient.zoom = Mth.clamp(SpyglassAstronomyClient.zoom - (float)scroll, -10, 10);
             return false;
         }
         return true;
     }
 
     @ModifyVariable(
-        method = "updateMouse",
+        method = "turnPlayer",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/tutorial/TutorialManager;onUpdateMouse(DD)V"
+            target = "Lnet/minecraft/client/tutorial/Tutorial;onMouse(DD)V"
         ),
         ordinal = 2
     )
     private double changeXSensitivity(double d) {
-        ClientPlayerEntity player = SpyglassAstronomyClient.client.player;
+        LocalPlayer player = SpyglassAstronomyClient.client.player;
         double angleScale;
-        if (player != null && player.isUsingSpyglass() && SpyglassAstronomyClient.client.options.getPerspective().isFirstPerson()) {
+        if (player != null && player.isUsingItem() && player.getUseItem().is(Items.SPYGLASS) && SpyglassAstronomyClient.client.options.getCameraType().isFirstPerson()) {
             sensitivityScale = (float)Math.pow(1.25d, SpyglassAstronomyClient.zoom);
-            float cosAngle = (MathHelper.cos(player.getPitch()/180*MathHelper.PI));
+            float cosAngle = Mth.cos(player.getXRot() / 180 * Mth.PI);
             if (cosAngle < 0) cosAngle *= -1;
             cosAngle = Math.max(cosAngle, (Math.max(SpyglassAstronomyClient.zoom,0)+1)/11);
             angleScale = 1/cosAngle;
@@ -67,10 +69,10 @@ public class MouseMixin {
     }
 
     @ModifyVariable(
-        method = "updateMouse",
+        method = "turnPlayer",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/tutorial/TutorialManager;onUpdateMouse(DD)V"
+                target = "Lnet/minecraft/client/tutorial/Tutorial;onMouse(DD)V"
         ),
         ordinal = 3
     )

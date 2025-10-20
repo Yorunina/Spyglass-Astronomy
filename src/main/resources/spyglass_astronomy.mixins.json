@@ -4,9 +4,6 @@
   "package": "com.nettakrim.spyglass_astronomy.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "BiomeAccessAccessor",
-    "ChatHudMixin",
-    "ClientWorldAccessor",
     "GameRendererMixin",
     "InGameHudMixin",
     "MinecraftClientMixin",
@@ -15,5 +12,6 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "refmap": "spyglass_astronomy.refmap.json"
 }
