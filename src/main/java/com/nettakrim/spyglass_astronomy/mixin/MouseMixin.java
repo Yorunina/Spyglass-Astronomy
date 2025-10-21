@@ -8,14 +8,16 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(MouseHandler.class)
 public class MouseMixin {
+    @Unique
+    private double sensitivityScale;
 
     @Inject(at = @At("TAIL"), method = "turnPlayer")
     public void updateMouse(CallbackInfo ci) {
@@ -23,6 +25,7 @@ public class MouseMixin {
             SpyglassAstronomyClient.updateDrawingConstellation();
         }
     }
+
     @WrapWithCondition(
             method = "onScroll",
             at = @At(
@@ -30,35 +33,49 @@ public class MouseMixin {
                     target = "Lnet/minecraft/world/entity/player/Inventory;swapPaint(D)V"
             )
     )
-    private boolean onMouseScroll(Inventory inventory, double scroll){
+    private boolean onMouseScroll(Inventory inventory, double scroll) {
         LocalPlayer player = SpyglassAstronomyClient.client.player;
-        if (player == null) return true;
-        boolean spyGlassing = player.isUsingItem() && player.getUseItem().is(Items.SPYGLASS);
-        if(spyGlassing){
-            SpyglassAstronomyClient.zoom = Mth.clamp(SpyglassAstronomyClient.zoom - (float)scroll, -10, 10);
+        if (player != null && player.isUsingItem() && player.getUseItem().is(Items.SPYGLASS)) {
+            SpyglassAstronomyClient.zoom = Mth.clamp(SpyglassAstronomyClient.zoom - (float) scroll, -10, 10);
             return false;
         }
         return true;
     }
 
-    @ModifyArgs(
+    @ModifyVariable(
             method = "turnPlayer",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V"
-            )
+                    target = "Lnet/minecraft/client/tutorial/Tutorial;onMouse(DD)V"
+            ),
+            ordinal = 2
     )
-    private void onTurn(Args args) {
+    private double changeXSensitivity(double d) {
         LocalPlayer player = SpyglassAstronomyClient.client.player;
+        double angleScale;
+
         if (player != null && player.isUsingItem() && player.getUseItem().is(Items.SPYGLASS) && SpyglassAstronomyClient.client.options.getCameraType().isFirstPerson()) {
-            double sensitivityScale = Math.pow(1.25d, SpyglassAstronomyClient.zoom);
+            sensitivityScale = Math.pow(1.25d, SpyglassAstronomyClient.zoom);
             float cosAngle = Mth.cos(player.getXRot() / 180 * Mth.PI);
             if (cosAngle < 0) cosAngle *= -1;
-            cosAngle = Math.max(cosAngle, (Math.max(SpyglassAstronomyClient.zoom,0)+1)/11f);
-            double angleScale = 1/cosAngle;
-
-            args.set(0, (double)args.get(0) * sensitivityScale * angleScale);
-            args.set(1, (double)args.get(1) * sensitivityScale);
+            cosAngle = Math.max(cosAngle, (Math.max(SpyglassAstronomyClient.zoom, 0) + 1) / 11);
+            angleScale = 1 / cosAngle;
+        } else {
+            sensitivityScale = 1;
+            angleScale = 1;
         }
+        return d * sensitivityScale * angleScale;
+    }
+
+    @ModifyVariable(
+            method = "turnPlayer",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/tutorial/Tutorial;onMouse(DD)V"
+            ),
+            ordinal = 3
+    )
+    private double changeYSensitivity(double d) {
+        return d * sensitivityScale;
     }
 }

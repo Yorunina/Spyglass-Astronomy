@@ -1,5 +1,7 @@
 package com.nettakrim.spyglass_astronomy;
 
+import net.minecraft.util.RandomSource;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -7,9 +9,9 @@ import java.util.Random;
 public class IntTetrisBagRandom {
     public ArrayList<Integer> list;
     public final int max;
-    private final Random random;
+    private final RandomSource random;
 
-    public IntTetrisBagRandom(Random random, int max) {
+    public IntTetrisBagRandom(RandomSource random, int max) {
         this.random = random;
         this.max = max;
         reset();

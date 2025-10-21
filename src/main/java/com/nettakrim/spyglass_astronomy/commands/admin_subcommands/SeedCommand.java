@@ -77,7 +77,7 @@ public class SeedCommand {
     }
 
     private static int resetStarSeed(CommandContext<CommandSourceStack> context) {
-        return setStarSeed(SpyglassAstronomyClient.world.getServer().overworld().getSeed());
+        return setStarSeed(SpyglassAstronomyClient.world.getBiomeManager().biomeZoomSeed);
     }
 
     private static int queryStarSeed(CommandContext<CommandSourceStack> context) {
@@ -101,7 +101,7 @@ public class SeedCommand {
     }
 
     private static int resetPlanetSeed(CommandContext<CommandSourceStack> context) {
-        return setPlanetSeed(SpyglassAstronomyClient.world.getServer().overworld().getSeed());
+        return setPlanetSeed(SpyglassAstronomyClient.world.getBiomeManager().biomeZoomSeed);
     }
 
 

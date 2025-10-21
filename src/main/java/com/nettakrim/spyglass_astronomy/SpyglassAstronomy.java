@@ -10,8 +10,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 public class SpyglassAstronomy {
     public static final String MODID = "spyglass_astronomy";
 
-    public SpyglassAstronomy() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public SpyglassAstronomy(FMLJavaModLoadingContext context) {
+        IEventBus modEventBus = context.getModEventBus();
         modEventBus.addListener(this::clientSetup);
     }
 

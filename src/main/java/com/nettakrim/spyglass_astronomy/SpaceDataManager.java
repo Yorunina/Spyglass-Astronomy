@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.storage.LevelResource;
 
 
@@ -35,7 +36,7 @@ public class SpaceDataManager {
     private int changesMade;
 
     public SpaceDataManager(ClientLevel world) {
-        long seedHash = Objects.requireNonNull(world.getServer()).getWorldData().worldGenOptions().seed();
+        long seedHash = world.getBiomeManager().biomeZoomSeed;
         boolean useDefault = true;
         Optional<Path> localPath = getLocalStorage();
         this.isWorldFolder = localPath.isPresent();

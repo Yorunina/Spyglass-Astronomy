@@ -9,6 +9,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.event.TickEvent;
@@ -89,37 +90,31 @@ public class SpyglassAstronomyClient {
 
     public static void loadSpace(ClientLevel clientWorld, boolean allowSave) {
         if (spaceDataManager != null && allowSave) spaceDataManager.saveData();
-
         world = clientWorld;
 
         stars = new ArrayList<>();
         constellations = new ArrayList<>();
         orbitingBodies = new ArrayList<>();
-
         spaceDataManager = new SpaceDataManager(clientWorld);
-
         generateSpace(false);
-
         knowledge = new Knowledge();
         updateKnowledge();
     }
 
     public static void generateSpace(boolean reset) {
-        Random random = new Random(0);
+        RandomSource random = RandomSource.create(0L);
         generateStars(random, reset, reset);
         generatePlanets(random, reset);
-
         for (Constellation constellation : constellations) {
             constellation.initaliseStarLines();
         }
-
         spaceRenderingManager = new SpaceRenderingManager();
         spaceRenderingManager.updateSpace(0);
     }
 
-    public static void generateStars(Random random, boolean resetStars, boolean resetConstellations) {
+    public static void generateStars(RandomSource random, boolean resetStars, boolean resetConstellations) {
         if (random == null) {
-            random = new Random(spaceDataManager.getStarSeed());
+            random = RandomSource.create(spaceDataManager.getStarSeed());
         } else {
             random.setSeed(spaceDataManager.getStarSeed());
         }
@@ -173,14 +168,14 @@ public class SpyglassAstronomyClient {
         spaceDataManager.loadStarDatas();
     }
 
-    public static void generatePlanets(Random random, boolean reset) {
+    public static void generatePlanets(RandomSource random, boolean reset) {
         if (random == null) {
-            random = new Random(spaceDataManager.getPlanetSeed());
+            random = RandomSource.create(spaceDataManager.getPlanetSeed());
         } else {
             random.setSeed(spaceDataManager.getPlanetSeed());
         }
         //things with less importance and *could* change in the future and not be too bad like exact color that use their own random
-        Random lowPriorityRandom = new Random(spaceDataManager.getPlanetSeed());
+        RandomSource lowPriorityRandom = RandomSource.create(spaceDataManager.getPlanetSeed());
 
         if (reset) {
             orbitingBodies = new ArrayList<>();
@@ -297,7 +292,7 @@ public class SpyglassAstronomyClient {
         spaceDataManager.loadOrbitingBodyDatas();
     }
 
-    private static int[] generateRandomColor(Random random, float hueRange, float lightnessRange, int saturationAmount, int forceHue, float forceHueAmount) {
+    private static int[] generateRandomColor(RandomSource random, float hueRange, float lightnessRange, int saturationAmount, int forceHue, float forceHueAmount) {
         float offsetRange = 2*hueRange-2;
         float gradientPos = random.nextFloat();
         if (forceHue == -1) {
@@ -322,7 +317,7 @@ public class SpyglassAstronomyClient {
         };
     }
 
-    private static void addRandomOrbitingBody(Random random, Random lowPriorityRandom, Orbit orbit, boolean isPlanet, IntTetrisBagRandom decorationRandom, OrbitingBodyType type) {
+    private static void addRandomOrbitingBody(RandomSource random, RandomSource lowPriorityRandom, Orbit orbit, boolean isPlanet, IntTetrisBagRandom decorationRandom, OrbitingBodyType type) {
         float size = random.nextFloat()+1;
         float albedo = (random.nextFloat()+1)/2;
         float rotationSpeed = random.nextFloat();
@@ -352,7 +347,7 @@ public class SpyglassAstronomyClient {
         orbitingBodies.add(new OrbitingBody(orbit, size, albedo, rotationSpeed, isPlanet, decoration, mainColor, secondaryColor, type));
     }
 
-    private static Orbit generateRandomOrbit(Random random, float period, float maxEccentricity, float maxAscension, float maxInclination, boolean isEarth) {
+    private static Orbit generateRandomOrbit(RandomSource random, float period, float maxEccentricity, float maxAscension, float maxInclination, boolean isEarth) {
         float eccentricityRaw = random.nextFloat();
         float rotationRaw = random.nextFloat();
         float ascensionRaw = (random.nextFloat()*2)-1;
