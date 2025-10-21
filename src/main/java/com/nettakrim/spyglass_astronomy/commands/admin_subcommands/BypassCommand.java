@@ -3,12 +3,12 @@ package com.nettakrim.spyglass_astronomy.commands.admin_subcommands;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.nettakrim.spyglass_astronomy.SpyglassAstronomyClient;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
 
 public class BypassCommand {
-    public static LiteralCommandNode<FabricClientCommandSource> getCommandNode() {
-        LiteralCommandNode<FabricClientCommandSource> bypassNode = ClientCommandManager
+    public static LiteralCommandNode<CommandSourceStack> getCommandNode() {
+        LiteralCommandNode<CommandSourceStack> bypassNode = Commands
             .literal("bypassknowledge")
             .executes(BypassCommand::bypassKnowledge)
             .build();
@@ -16,7 +16,7 @@ public class BypassCommand {
         return bypassNode;
     }
 
-    public static int bypassKnowledge(CommandContext<FabricClientCommandSource> context) {
+    public static int bypassKnowledge(CommandContext<CommandSourceStack> context) {
         if (SpyglassAstronomyClient.knowledge.bypassKnowledge()) {
             SpyglassAstronomyClient.say("commands.admin.bypass.on");
         } else {

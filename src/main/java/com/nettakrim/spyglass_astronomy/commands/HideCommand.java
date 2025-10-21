@@ -7,37 +7,37 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.nettakrim.spyglass_astronomy.SpaceRenderingManager;
 import com.nettakrim.spyglass_astronomy.SpyglassAstronomyClient;
 
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
 
-public class HideCommand implements Command<FabricClientCommandSource> {
-    public static LiteralCommandNode<FabricClientCommandSource> getCommandNode() {
-        LiteralCommandNode<FabricClientCommandSource> hideNode = ClientCommandManager
+public class HideCommand implements Command<CommandSourceStack> {
+    public static LiteralCommandNode<CommandSourceStack> getCommandNode() {
+        LiteralCommandNode<CommandSourceStack> hideNode = Commands
             .literal("sga:hide")
             .executes(new HideCommand())
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> constellationsHideNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> constellationsHideNode = Commands
             .literal("constellations")
             .executes(HideCommand::hideConstellations)
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> starsHideNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> starsHideNode = Commands
             .literal("stars")
             .executes(HideCommand::hideStars)
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> orbitingBodiesHideNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> orbitingBodiesHideNode = Commands
             .literal("planets")
             .executes(HideCommand::hideOrbitingBodies)
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> oldStarsHideNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> oldStarsHideNode = Commands
             .literal("vanillastars")
             .executes(HideCommand::hideOldStars)
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> dayTimeHideNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> dayTimeHideNode = Commands
             .literal("daytime")
             .executes(HideCommand::hideDaytime)
             .build();
@@ -52,7 +52,7 @@ public class HideCommand implements Command<FabricClientCommandSource> {
     }
 
     @Override
-    public int run(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
+    public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         boolean active = !(SpaceRenderingManager.constellationsVisible || SpaceRenderingManager.starsVisible || SpaceRenderingManager.orbitingBodiesVisible || SpaceRenderingManager.oldStarsVisible);
         SpaceRenderingManager.constellationsVisible = active;
         SpaceRenderingManager.starsVisible = active;
@@ -62,31 +62,31 @@ public class HideCommand implements Command<FabricClientCommandSource> {
         return 1;
 	}
 
-    private static int hideConstellations(CommandContext<FabricClientCommandSource> context) {
+    private static int hideConstellations(CommandContext<CommandSourceStack> context) {
         SpaceRenderingManager.constellationsVisible = !SpaceRenderingManager.constellationsVisible;
         sayHideUpdate("constellations", SpaceRenderingManager.constellationsVisible);
         return 1;
     }
 
-    private static int hideStars(CommandContext<FabricClientCommandSource> context) {
+    private static int hideStars(CommandContext<CommandSourceStack> context) {
         SpaceRenderingManager.starsVisible = !SpaceRenderingManager.starsVisible;
         sayHideUpdate("stars", SpaceRenderingManager.starsVisible);
         return 1;
     }
 
-    private static int hideOrbitingBodies(CommandContext<FabricClientCommandSource> context) {
+    private static int hideOrbitingBodies(CommandContext<CommandSourceStack> context) {
         SpaceRenderingManager.orbitingBodiesVisible = !SpaceRenderingManager.orbitingBodiesVisible;
         sayHideUpdate("planets", SpaceRenderingManager.orbitingBodiesVisible);
         return 1;
     }
 
-    private static int hideOldStars(CommandContext<FabricClientCommandSource> context) {
+    private static int hideOldStars(CommandContext<CommandSourceStack> context) {
         SpaceRenderingManager.oldStarsVisible = !SpaceRenderingManager.oldStarsVisible;
         sayHideUpdate("vanillastars", SpaceRenderingManager.oldStarsVisible);
         return 1;
     }
 
-    private static int hideDaytime(CommandContext<FabricClientCommandSource> context) {
+    private static int hideDaytime(CommandContext<CommandSourceStack> context) {
         SpaceRenderingManager.starsAlwaysVisible = !SpaceRenderingManager.starsAlwaysVisible;
         sayHideUpdate("daytime", SpaceRenderingManager.starsAlwaysVisible);
         return 1;

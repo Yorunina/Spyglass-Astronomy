@@ -11,16 +11,16 @@ import com.nettakrim.spyglass_astronomy.Star;
 import com.nettakrim.spyglass_astronomy.OrbitingBody;
 import com.nettakrim.spyglass_astronomy.SpaceDataManager;
 
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.command.argument.MessageArgumentType;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.MessageArgument;
 
-public class NameCommand implements Command<FabricClientCommandSource> {
-    public static LiteralCommandNode<FabricClientCommandSource> getCommandNode() {
-        LiteralCommandNode<FabricClientCommandSource> nameNode = ClientCommandManager
+public class NameCommand implements Command<CommandSourceStack> {
+    public static LiteralCommandNode<CommandSourceStack> getCommandNode() {
+        LiteralCommandNode<CommandSourceStack> nameNode = Commands
             .literal("sga:name")
             .then(
-                ClientCommandManager.argument("name", MessageArgumentType.message())
+                Commands.argument("name", MessageArgument.message())
                     .executes(new NameCommand())
             )
             .build();
@@ -29,7 +29,7 @@ public class NameCommand implements Command<FabricClientCommandSource> {
     }
 
 	@Override
-	public int run(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
+	public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         String name = SpyglassAstronomyCommands.getMessageText(context);
         name = name.replace("|", "");
         name = name.replaceAll("^ +| +$|( )+", "$1"); //remove double spaces
@@ -49,7 +49,7 @@ public class NameCommand implements Command<FabricClientCommandSource> {
         return -1;
 	}
 
-    public static int nameConstellation(CommandContext<FabricClientCommandSource> context) {
+    public static int nameConstellation(CommandContext<CommandSourceStack> context) {
         int index = IntegerArgumentType.getInteger(context, "index");
         int size = SpyglassAstronomyClient.constellations.size();
         if (index >= size) {
@@ -65,7 +65,7 @@ public class NameCommand implements Command<FabricClientCommandSource> {
         return 1;
     }
 
-    public static int nameStar(CommandContext<FabricClientCommandSource> context) {
+    public static int nameStar(CommandContext<CommandSourceStack> context) {
         int index = IntegerArgumentType.getInteger(context, "index");
         if (index >= SpyglassAstronomyClient.stars.size()) {
             SpyglassAstronomyClient.say("commands.name.star.fail");
@@ -76,7 +76,7 @@ public class NameCommand implements Command<FabricClientCommandSource> {
         return 1;
     }
 
-    public static int nameOrbitingBody(CommandContext<FabricClientCommandSource> context) {
+    public static int nameOrbitingBody(CommandContext<CommandSourceStack> context) {
         int index = IntegerArgumentType.getInteger(context, "index");
         if (index >= SpyglassAstronomyClient.orbitingBodies.size()) {
             SpyglassAstronomyClient.say("commands.name.planet.fail");
@@ -101,7 +101,8 @@ public class NameCommand implements Command<FabricClientCommandSource> {
     private static void name(Star star, String name) {
         if (star.isUnnamed()) {
             SpyglassAstronomyClient.say("commands.name.star", name);
-        } else {
+        }
+        else {
             SpyglassAstronomyClient.say("commands.name.star.rename", star.name, name);
         }
         star.name = name;
@@ -112,7 +113,8 @@ public class NameCommand implements Command<FabricClientCommandSource> {
     private static void name(OrbitingBody orbitingBody, String name) {
         if (orbitingBody.isUnnamed()) {
             SpyglassAstronomyClient.say("commands.name."+(orbitingBody.isPlanet ? "planet" : "comet"), name);
-        } else {
+        }
+        else {
             SpyglassAstronomyClient.say("commands.name."+(orbitingBody.isPlanet ? "planet" : "comet")+".rename", orbitingBody.name, name);
         }
         orbitingBody.name = name;

@@ -79,6 +79,16 @@ dependencies {
 	}
 }
 
+sourceSets {
+    main.resources.srcDirs += 'src/generated/resources'
+}
+
+mixin {
+    add sourceSets.main, "${modid}.refmap.json"
+    config "${modid}.mixins.json"
+    debug.export = true
+}
+
 tasks.named('processResources', ProcessResources).configure {
 	var replaceProperties = [
 			minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,

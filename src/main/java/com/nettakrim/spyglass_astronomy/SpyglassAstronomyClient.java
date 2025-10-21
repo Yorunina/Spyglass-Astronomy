@@ -1,6 +1,5 @@
 package com.nettakrim.spyglass_astronomy;
 
-
 import com.nettakrim.spyglass_astronomy.OrbitingBody.OrbitingBodyType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -12,12 +11,9 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
@@ -26,14 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Random;
 
-
-@Mod("spyglass_astronomy")
-@Mod.EventBusSubscriber(modid = "spyglass_astronomy", bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class SpyglassAstronomyClient {
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
-    public static final String MODID = "spyglass_astronomy";
 	public static final Logger LOGGER = LoggerFactory.getLogger("Spyglass Astronomy");
 
     public static boolean ready;
@@ -73,14 +62,10 @@ public class SpyglassAstronomyClient {
 
     private static boolean spyglassImprovementsIsLoaded;
 
-	@SubscribeEvent
-	public static void onClientSetup(FMLClientSetupEvent event) {
+    public static void onClientSetup(FMLClientSetupEvent event) {
         client = Minecraft.getInstance();
-
-        MinecraftForge.EVENT_BUS.register(SpyglassAstronomyClient.class);
-
         spyglassImprovementsIsLoaded = ModList.get().isLoaded("spyglass-improvements");
-	}
+    }
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
@@ -714,22 +699,22 @@ public class SpyglassAstronomyClient {
     }
 
     public static void say(String key, Object... args) {
-        MutableComponent baseText = Component.translatable(MODID + ".say").setStyle(Style.EMPTY.withColor(nameTextColor));
-        MutableComponent messageText = Component.translatable(MODID + "." + key, args).setStyle(Style.EMPTY.withColor(textColor));
+        MutableComponent baseText = Component.translatable(SpyglassAstronomy.MODID + ".say").setStyle(Style.EMPTY.withColor(nameTextColor));
+        MutableComponent messageText = Component.translatable(SpyglassAstronomy.MODID + "." + key, args).setStyle(Style.EMPTY.withColor(textColor));
         say(baseText.append(messageText));
     }
 
     public static void sayText(Component text) {
-        say(Component.translatable(MODID+".say").setStyle(Style.EMPTY.withColor(nameTextColor)).append(text));
+        say(Component.translatable(SpyglassAstronomy.MODID+".say").setStyle(Style.EMPTY.withColor(nameTextColor)).append(text));
     }
 
     public static void longSay(Component text) {
-        say(Component.translatable(MODID+".longsay").setStyle(Style.EMPTY.withColor(nameTextColor)).append(text));
+        say(Component.translatable(SpyglassAstronomy.MODID+".longsay").setStyle(Style.EMPTY.withColor(nameTextColor)).append(text));
     }
 
     public static void sayActionBar(String key, Object... args) {
         if (client.player == null) return;
-        client.player.displayClientMessage(Component.translatable(MODID + "." + key, args), true);
+        client.player.displayClientMessage(Component.translatable(SpyglassAstronomy.MODID + "." + key, args), true);
     }
 
     public static void updateKnowledge() {

@@ -1,28 +1,25 @@
 package com.nettakrim.spyglass_astronomy.mixin;
 
-
+import com.nettakrim.spyglass_astronomy.OrbitingBody;
+import com.nettakrim.spyglass_astronomy.SpyglassAstronomyClient;
+import com.nettakrim.spyglass_astronomy.commands.SpyglassAstronomyCommands;
+import net.minecraft.client.GuiMessageTag;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.nettakrim.spyglass_astronomy.OrbitingBody;
-import com.nettakrim.spyglass_astronomy.SpyglassAstronomyClient;
-import com.nettakrim.spyglass_astronomy.commands.SpyglassAstronomyCommands;
-
-import net.minecraft.network.message.MessageSignatureData;
-import net.minecraft.client.gui.hud.MessageIndicator;
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.text.Text;
-
-@Mixin(ChatHud.class)
+@Mixin(ChatComponent.class)
 public class ChatHudMixin {
-    @Inject(at = @At("TAIL"), method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V")
-    public void onChat(Text messageText, MessageSignatureData messageSignatureData, MessageIndicator messageIndicator, CallbackInfo ci) {
-        String message = messageText.getString();
+    @Inject(at = @At("TAIL"), method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V")
+    public void onChat(Component pChatComponent, MessageSignature pHeaderSignature, GuiMessageTag pTag, CallbackInfo ci) {
+        String message = pChatComponent.getString();
         int sgaIndex = message.indexOf("sga:");
         if (sgaIndex == -1) return;
-        
+
         String data = message.substring(sgaIndex+4);
         int firstIndex = data.indexOf("|");
         if (firstIndex == -1) return;
@@ -37,7 +34,7 @@ public class ChatHudMixin {
                 if (secondIndex == -1) return;
                 String constellationName = data.substring(2, firstIndex);
                 String constellationData = data.substring(firstIndex + 1, secondIndex);
-                Text constellationText = SpyglassAstronomyCommands.getClickHere(
+                Component constellationText = SpyglassAstronomyCommands.getClickHere(
                         "commands.share.receive.constellation",
                         "/sga:admin constellations add " + constellationData + " " + constellationName,
                         true,
@@ -55,7 +52,7 @@ public class ChatHudMixin {
                 } catch (Exception e) {
                     break;
                 }
-                Text starText = SpyglassAstronomyCommands.getClickHere(
+                Component starText = SpyglassAstronomyCommands.getClickHere(
                         "commands.share.receive.star",
                         "/sga:admin rename star " + starIndex + " " + starName,
                         true,
@@ -75,7 +72,7 @@ public class ChatHudMixin {
                 }
                 if (orbitingBodyIndex >= SpyglassAstronomyClient.orbitingBodies.size()) break;
                 OrbitingBody orbitingBody = SpyglassAstronomyClient.orbitingBodies.get(orbitingBodyIndex);
-                Text orbitingBodyText = SpyglassAstronomyCommands.getClickHere(
+                Component orbitingBodyText = SpyglassAstronomyCommands.getClickHere(
                         "commands.share.receive." + (orbitingBody.isPlanet ? "planet" : "comet"),
                         "/sga:admin rename planet " + orbitingBodyIndex + " " + orbitingBodyName,
                         true,

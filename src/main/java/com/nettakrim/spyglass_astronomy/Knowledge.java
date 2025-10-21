@@ -43,9 +43,9 @@ public class Knowledge {
 
     public MutableComponent getInstructionsToStarKnowledgeStage(int stage) {
         return switch (stage) {
-            case 1 -> Component.translatable(SpyglassAstronomyClient.MODID + ".commands.info.starknowledge.toadept", "5");
-            case 2 -> Component.translatable(SpyglassAstronomyClient.MODID + ".commands.info.starknowledge.toexpert", "10", "3");
-            case 3 -> Component.translatable(SpyglassAstronomyClient.MODID + ".commands.info.starknowledge.tomaster", "20", "8");
+            case 1 -> Component.translatable(SpyglassAstronomy.MODID + ".commands.info.starknowledge.toadept", "5");
+            case 2 -> Component.translatable(SpyglassAstronomy.MODID + ".commands.info.starknowledge.toexpert", "10", "3");
+            case 3 -> Component.translatable(SpyglassAstronomy.MODID + ".commands.info.starknowledge.tomaster", "20", "8");
             default -> Component.empty();
         };
     }
@@ -78,9 +78,9 @@ public class Knowledge {
 
     public MutableComponent getInstructionsToOrbitKnowledgeStage(int stage) {
         return switch (stage) {
-            case 1 -> Component.translatable(SpyglassAstronomyClient.MODID + ".commands.info.orbitknowledge.toadept", Integer.toString(planets / 3), "1");
-            case 2 -> Component.translatable(SpyglassAstronomyClient.MODID + ".commands.info.orbitknowledge.toexpert", Integer.toString(planets / 3 * 2), "2");
-            case 3 -> Component.translatable(SpyglassAstronomyClient.MODID + ".commands.info.orbitknowledge.tomaster", Integer.toString(planets - 1), Integer.toString(comets - 1));
+            case 1 -> Component.translatable(SpyglassAstronomy.MODID + ".commands.info.orbitknowledge.toadept", Integer.toString(planets / 3), "1");
+            case 2 -> Component.translatable(SpyglassAstronomy.MODID + ".commands.info.orbitknowledge.toexpert", Integer.toString(planets / 3 * 2), "2");
+            case 3 -> Component.translatable(SpyglassAstronomy.MODID + ".commands.info.orbitknowledge.tomaster", Integer.toString(planets - 1), Integer.toString(comets - 1));
             default -> Component.empty();
         };
     }

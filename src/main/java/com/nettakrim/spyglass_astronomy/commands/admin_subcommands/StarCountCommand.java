@@ -7,31 +7,31 @@ import com.nettakrim.spyglass_astronomy.Constellation;
 import com.nettakrim.spyglass_astronomy.SpaceDataManager;
 import com.nettakrim.spyglass_astronomy.SpyglassAstronomyClient;
 import com.nettakrim.spyglass_astronomy.StarLine;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.util.ArrayList;
 
 public class StarCountCommand {
-    public static LiteralCommandNode<FabricClientCommandSource> getCommandNode() {
-        LiteralCommandNode<FabricClientCommandSource> starCountNode = ClientCommandManager
+    public static LiteralCommandNode<CommandSourceStack> getCommandNode() {
+        LiteralCommandNode<CommandSourceStack> starCountNode = Commands
             .literal("starcount")
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> queryNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> queryNode = Commands
             .literal("query")
             .executes(StarCountCommand::queryStarCount)
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> resetNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> resetNode = Commands
             .literal("reset")
             .executes(StarCountCommand::resetStarCount)
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> setNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> setNode = Commands
             .literal("set")
             .then(
-                ClientCommandManager.argument("amount", IntegerArgumentType.integer(0,4095))
+                Commands.argument("amount", IntegerArgumentType.integer(0,4095))
                     .executes(StarCountCommand::setStarCount)
             )
             .build();
@@ -44,11 +44,11 @@ public class StarCountCommand {
 
     public static final ArrayList<Constellation> invalidatedConstellations = new ArrayList<>();
 
-    private static int setStarCount(CommandContext<FabricClientCommandSource> context) {
+    private static int setStarCount(CommandContext<CommandSourceStack> context) {
         return setStarCount(IntegerArgumentType.getInteger(context, "amount"));
     }
 
-    private static int resetStarCount(CommandContext<FabricClientCommandSource> context) {
+    private static int resetStarCount(CommandContext<CommandSourceStack> context) {
         return setStarCount(1024);
     }
 
@@ -119,7 +119,7 @@ public class StarCountCommand {
         return 1;
     }
 
-    private static int queryStarCount(CommandContext<FabricClientCommandSource> context) {
+    private static int queryStarCount(CommandContext<CommandSourceStack> context) {
         SpyglassAstronomyClient.say("commands.admin.starcount.query", Integer.toString(SpyglassAstronomyClient.getStarCount()));
         return 1;
     }

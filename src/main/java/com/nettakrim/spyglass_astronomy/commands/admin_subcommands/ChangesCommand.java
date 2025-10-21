@@ -4,26 +4,26 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.nettakrim.spyglass_astronomy.SpaceDataManager;
 import com.nettakrim.spyglass_astronomy.SpyglassAstronomyClient;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
 
 public class ChangesCommand {
-    public static LiteralCommandNode<FabricClientCommandSource> getCommandNode() {
-        LiteralCommandNode<FabricClientCommandSource> changesNode = ClientCommandManager
+    public static LiteralCommandNode<CommandSourceStack> getCommandNode() {
+        LiteralCommandNode<CommandSourceStack> changesNode = Commands
             .literal("changes")
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> discardNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> discardNode = Commands
             .literal("discard")
             .executes(ChangesCommand::discardUnsavedChanges)
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> saveNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> saveNode = Commands
             .literal("save")
             .executes(ChangesCommand::saveChanges)
             .build();
 
-        LiteralCommandNode<FabricClientCommandSource> queryNode = ClientCommandManager
+        LiteralCommandNode<CommandSourceStack> queryNode = Commands
             .literal("query")
             .executes(ChangesCommand::queryChanges)
             .build();
@@ -34,7 +34,7 @@ public class ChangesCommand {
         return changesNode;
     }
 
-    private static int saveChanges(CommandContext<FabricClientCommandSource> context) {
+    private static int saveChanges(CommandContext<CommandSourceStack> context) {
         int changes = SpaceDataManager.getChanges();
         if (changes != 0) {
             SpyglassAstronomyClient.say("commands.admin.changes.save", Integer.toString(changes));
@@ -45,7 +45,7 @@ public class ChangesCommand {
         return 1;
     }
 
-    private static int discardUnsavedChanges(CommandContext<FabricClientCommandSource> context) {
+    private static int discardUnsavedChanges(CommandContext<CommandSourceStack> context) {
         int changes = SpaceDataManager.getChanges();
         if (changes != 0) {
             SpyglassAstronomyClient.say("commands.admin.changes.discard", Integer.toString(changes));
@@ -56,7 +56,7 @@ public class ChangesCommand {
         return 1;
     }
 
-    private static int queryChanges(CommandContext<FabricClientCommandSource> context) {
+    private static int queryChanges(CommandContext<CommandSourceStack> context) {
         SpyglassAstronomyClient.say("commands.admin.changes.query", Integer.toString(SpaceDataManager.getChanges()));
         return 1;
     }
